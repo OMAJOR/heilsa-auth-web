@@ -15,14 +15,19 @@ const C = {
 
 export type SidebarKey = "home" | "scan" | "health" | "chat" | "profile";
 
-type NavItem = { key: SidebarKey; icon: LucideIcon; label: string; path: string };
+type NavItem = {
+  key: SidebarKey;
+  icon: LucideIcon;
+  label: string;
+  path?: string;
+};
 
 const NAV: NavItem[] = [
   { key: "home", icon: Home, label: "Home", path: "/dashboard" },
-  { key: "scan", icon: Scan, label: "Scan", path: "/scan" },
-  { key: "health", icon: Activity, label: "Health", path: "/health" },
+  { key: "scan", icon: Scan, label: "Scan" },
+  { key: "health", icon: Activity, label: "Health" },
   { key: "chat", icon: MessageSquare, label: "AI Chat", path: "/chat" },
-  { key: "profile", icon: UserIcon, label: "Profile", path: "/profile" },
+  { key: "profile", icon: UserIcon, label: "Profile" },
 ];
 
 function md(user: ReturnType<typeof useAuth>["user"]) {
@@ -121,31 +126,55 @@ export function AppSidebar({
       <div style={{ padding: "0 8px" }}>
         {NAV.map(({ key, icon: Icon, label, path }) => {
           const isActive = key === active;
+          const disabled = !path;
           return (
             <div
               key={key}
-              onClick={() => navigate(path)}
+              onClick={() => {
+                if (path) navigate(path);
+              }}
+              title={disabled ? "Coming soon" : undefined}
               style={{
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "space-between",
                 gap: 10,
                 padding: "10px 12px",
                 borderRadius: 10,
                 background: isActive ? "#EFF8FF" : "transparent",
                 marginBottom: 2,
-                cursor: "pointer",
+                cursor: disabled ? "not-allowed" : "pointer",
+                opacity: disabled ? 0.55 : 1,
               }}
             >
-              <Icon size={18} color={isActive ? C.primaryDk : C.muted} />
-              <span
-                style={{
-                  fontSize: 14,
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? C.primaryDk : C.muted,
-                }}
-              >
-                {label}
-              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Icon size={18} color={isActive ? C.primaryDk : C.muted} />
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: isActive ? 600 : 400,
+                    color: isActive ? C.primaryDk : C.muted,
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
+              {disabled && (
+                <span
+                  style={{
+                    fontSize: 9,
+                    fontWeight: 600,
+                    color: C.muted,
+                    background: "#F1F5F9",
+                    padding: "2px 6px",
+                    borderRadius: 6,
+                    textTransform: "uppercase",
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  Soon
+                </span>
+              )}
             </div>
           );
         })}
