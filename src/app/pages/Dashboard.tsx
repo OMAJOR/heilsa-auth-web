@@ -9,19 +9,14 @@ import {
   CartesianGrid,
 } from "recharts";
 import {
-  Home,
-  Scan,
-  Activity,
-  MessageSquare,
-  User,
   RefreshCw,
   Bell,
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  LogOut,
 } from "lucide-react";
 import { useAuth } from "../../lib/auth-context";
+import { AppSidebar, displayName } from "../components/heilsa/AppSidebar";
 
 const C = {
   bg: "#F0F9FF",
@@ -33,7 +28,6 @@ const C = {
   border: "#CBD5E1",
   green: "#22C55E",
   shadow: "0 4px 20px rgba(14,165,233,0.08)",
-  sidebarBg: "#FFFFFF",
 };
 
 const sleepData = [
@@ -70,186 +64,6 @@ function getDateStrip(today: Date) {
     });
   }
   return days;
-}
-
-function displayName(user: { email?: string | null; user_metadata?: Record<string, unknown> } | null) {
-  if (!user) return "there";
-  const md = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const first = (md.first_name as string) || (md.firstName as string);
-  if (first) return first;
-  const full = (md.full_name as string) || (md.name as string);
-  if (full) return full.split(" ")[0];
-  if (user.email) return user.email.split("@")[0];
-  return "there";
-}
-
-function initials(user: { email?: string | null; user_metadata?: Record<string, unknown> } | null) {
-  if (!user) return "··";
-  const md = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const first = (md.first_name as string) || (md.firstName as string) || "";
-  const last = (md.last_name as string) || (md.lastName as string) || "";
-  if (first || last) return ((first[0] ?? "") + (last[0] ?? "")).toUpperCase() || "··";
-  const full = (md.full_name as string) || (md.name as string) || "";
-  if (full) {
-    const parts = full.split(" ").filter(Boolean);
-    return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "··";
-  }
-  return (user.email?.slice(0, 2) ?? "··").toUpperCase();
-}
-
-function fullName(user: { email?: string | null; user_metadata?: Record<string, unknown> } | null) {
-  if (!user) return "";
-  const md = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const first = (md.first_name as string) || (md.firstName as string) || "";
-  const last = (md.last_name as string) || (md.lastName as string) || "";
-  if (first || last) return `${first} ${last}`.trim();
-  const full = (md.full_name as string) || (md.name as string);
-  return full || user.email || "";
-}
-
-function Sidebar({
-  onSignOut,
-  user,
-}: {
-  onSignOut: () => void;
-  user: ReturnType<typeof useAuth>["user"];
-}) {
-  const nav = [
-    { icon: Home, label: "Home", active: true },
-    { icon: Scan, label: "Scan" },
-    { icon: Activity, label: "Health" },
-    { icon: MessageSquare, label: "AI Chat" },
-    { icon: User, label: "Profile" },
-  ];
-  return (
-    <div
-      style={{
-        width: 200,
-        background: C.sidebarBg,
-        borderRight: `1px solid ${C.border}`,
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        padding: "20px 0",
-      }}
-    >
-      <div style={{ padding: "0 16px 24px", display: "flex", alignItems: "center", gap: 10 }}>
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 9,
-            background: `linear-gradient(135deg,${C.primary},${C.primaryDk})`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-          </svg>
-        </div>
-        <span style={{ fontSize: 16, fontWeight: 700, color: C.text }}>Heilsa</span>
-      </div>
-      <div style={{ flex: 1, padding: "0 8px" }}>
-        {nav.map(({ icon: Icon, label, active }) => (
-          <div
-            key={label}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "10px 12px",
-              borderRadius: 10,
-              background: active ? "#EFF8FF" : "transparent",
-              marginBottom: 2,
-              cursor: "pointer",
-            }}
-          >
-            <Icon size={18} color={active ? C.primaryDk : C.muted} />
-            <span
-              style={{
-                fontSize: 14,
-                fontWeight: active ? 600 : 400,
-                color: active ? C.primaryDk : C.muted,
-              }}
-            >
-              {label}
-            </span>
-          </div>
-        ))}
-      </div>
-      <div style={{ padding: "12px 16px", borderTop: `1px solid ${C.border}` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              background: C.primary,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>{initials(user)}</span>
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: C.text,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                maxWidth: 110,
-              }}
-            >
-              {fullName(user) || "Heilsa member"}
-            </div>
-            <div style={{ fontSize: 11, color: C.muted }}>Pro Member</div>
-          </div>
-        </div>
-        <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 7, height: 7, borderRadius: "50%", background: C.green }} />
-          <span style={{ fontSize: 11, color: C.muted }}>Syncing · Apple Health</span>
-        </div>
-        <button
-          onClick={onSignOut}
-          style={{
-            marginTop: 12,
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            padding: "8px 10px",
-            borderRadius: 8,
-            background: "transparent",
-            border: `1px solid ${C.border}`,
-            cursor: "pointer",
-            color: C.muted,
-            fontSize: 12,
-            fontWeight: 500,
-            fontFamily: "inherit",
-          }}
-        >
-          <LogOut size={13} />
-          Sign out
-        </button>
-      </div>
-    </div>
-  );
 }
 
 function MetricCard({
@@ -312,7 +126,7 @@ function MetricCard({
 }
 
 export const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const today = useMemo(() => new Date(), []);
   const days = useMemo(() => getDateStrip(today), [today]);
   const [selectedDay, setSelectedDay] = useState(() => days.findIndex((d) => d.today));
@@ -338,7 +152,7 @@ export const Dashboard = () => {
         overflow: "hidden",
       }}
     >
-      <Sidebar onSignOut={() => signOut()} user={user} />
+      <AppSidebar active="home" />
 
       {/* Main */}
       <div style={{ flex: 1, overflow: "auto", padding: 28 }}>

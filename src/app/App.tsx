@@ -7,6 +7,7 @@ import { VerifyEmailScreen } from "./components/heilsa/auth/VerifyEmailScreen";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
 import { Dashboard } from "./pages/Dashboard";
+import { Chat } from "./pages/Chat";
 
 const basename = (import.meta.env.BASE_URL || "/").replace(/\/$/, "") || "/";
 
@@ -39,6 +40,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             }
           />

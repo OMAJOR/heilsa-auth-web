@@ -238,3 +238,8 @@
     line-height: 1.5;
   }
 }
+
+@keyframes heilsa-chat-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 0.9; }
+}
