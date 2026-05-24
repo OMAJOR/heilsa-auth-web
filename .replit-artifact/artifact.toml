@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/v0-auth-web/"
+title = "v0 Auth Web"
+version = "1.0.0"
+id = "artifacts/v0-auth-web"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/v0-auth-web/" ]
+localPort = 22855
+
+[services.development]
+run = "pnpm --filter @workspace/v0-auth-web run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/v0-auth-web", "run", "build" ]
+publicDir = "artifacts/v0-auth-web/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22855"
+BASE_PATH = "/v0-auth-web/"

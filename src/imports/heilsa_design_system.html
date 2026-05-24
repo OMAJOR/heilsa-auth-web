@@ -1,0 +1,563 @@
+
+<style>
+  :root {
+    --h-teal: #3ECFB2;
+    --h-teal-light: #D0F5EE;
+    --h-teal-dark: #0F9E82;
+    --h-blue: #5CA8E8;
+    --h-blue-light: #DCEFFE;
+    --h-blue-dark: #2075C4;
+    --h-violet: #8B7CF8;
+    --h-violet-light: #EAE8FF;
+    --h-violet-dark: #5A45C8;
+    --h-navy: #1E2A45;
+    --h-navy-mid: #2F3E5C;
+    --h-gray-100: #F6F8FB;
+    --h-gray-200: #EDF0F5;
+    --h-gray-300: #D8DDE8;
+    --h-gray-400: #9BA5B8;
+    --h-gray-600: #5D6880;
+    --h-success: #34C78A;
+    --h-warning: #F59E0B;
+    --h-error: #F24E4E;
+    --h-gold: #D4A853;
+    --h-gold-light: #FFF3DC;
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 16px;
+    --r-xl: 24px;
+    --r-full: 999px;
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    --shadow-elevated: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, -apple-system, sans-serif); background: transparent; color: var(--color-text-primary); }
+
+  .ds-wrap { padding: 0 0 2rem; }
+
+  .section { margin-bottom: 2.5rem; }
+  .section-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--color-text-secondary);
+    margin-bottom: 1rem; padding-bottom: 6px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .tab-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2rem; }
+  .tab {
+    padding: 7px 16px; border-radius: var(--r-full); font-size: 13px;
+    border: 0.5px solid var(--color-border-secondary); cursor: pointer;
+    background: var(--color-background-primary); color: var(--color-text-secondary);
+    transition: all 0.15s;
+  }
+  .tab.active {
+    background: var(--h-navy); color: #fff; border-color: var(--h-navy);
+  }
+  .tab:hover:not(.active) { background: var(--color-background-secondary); }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .swatch { border-radius: var(--r-md); overflow: hidden; border: 0.5px solid var(--color-border-tertiary); }
+  .swatch-color { height: 52px; }
+  .swatch-info { padding: 8px 10px; background: var(--color-background-primary); }
+  .swatch-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+  .swatch-hex { font-size: 11px; color: var(--color-text-secondary); font-family: var(--font-mono); margin-top: 2px; }
+
+  .type-row { padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: baseline; gap: 1rem; }
+  .type-label { font-size: 11px; color: var(--color-text-secondary); min-width: 120px; font-family: var(--font-mono); }
+
+  .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+
+  .card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--r-lg); padding: 16px;
+  }
+  .card-elevated {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--r-lg); padding: 16px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .metric-card { background: var(--color-background-secondary); border-radius: var(--r-md); padding: 14px 16px; }
+  .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .metric-val { font-size: 26px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+  .metric-unit { font-size: 13px; color: var(--color-text-secondary); margin-left: 3px; }
+  .metric-trend { font-size: 12px; color: var(--h-success); margin-top: 5px; }
+  .metric-trend.down { color: var(--h-error); }
+
+  .icon-dot {
+    width: 36px; height: 36px; border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .dot-teal { background: var(--h-teal-light); color: var(--h-teal-dark); }
+  .dot-blue { background: var(--h-blue-light); color: var(--h-blue-dark); }
+  .dot-violet { background: var(--h-violet-light); color: var(--h-violet-dark); }
+  .dot-gold { background: var(--h-gold-light); color: var(--h-gold); }
+  .dot-success { background: #D4F6E8; color: var(--h-success); }
+  .dot-warn { background: #FEF3CD; color: var(--h-warning); }
+
+  .insight-card { border-radius: var(--r-lg); padding: 16px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); }
+  .insight-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .insight-title { font-size: 14px; font-weight: 500; }
+  .insight-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.55; }
+  .insight-tag { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: var(--r-full); margin-top: 8px; }
+  .tag-teal { background: var(--h-teal-light); color: var(--h-teal-dark); }
+  .tag-gold { background: var(--h-gold-light); color: var(--h-gold); }
+  .tag-blue { background: var(--h-blue-light); color: var(--h-blue-dark); }
+
+  .progress-wrap { margin-top: 10px; }
+  .progress-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .progress-bar { height: 6px; background: var(--color-background-secondary); border-radius: var(--r-full); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: var(--r-full); }
+  .fill-teal { background: linear-gradient(90deg, var(--h-teal), var(--h-blue)); }
+  .fill-gold { background: linear-gradient(90deg, var(--h-gold), #E8C46A); }
+  .fill-warn { background: var(--h-warning); }
+
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: var(--r-md); font-size: 14px; cursor: pointer; border: none; font-weight: 500; transition: all 0.15s; }
+  .btn-primary { background: var(--h-navy); color: #fff; }
+  .btn-primary:hover { background: var(--h-navy-mid); }
+  .btn-secondary { background: transparent; border: 1px solid var(--h-navy); color: var(--h-navy); }
+  .btn-ghost { background: transparent; color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+  .btn-ghost:hover { background: var(--color-background-secondary); }
+  .btn-teal { background: var(--h-teal); color: #fff; }
+  .btn-teal:hover { background: var(--h-teal-dark); }
+  .btn-premium { background: linear-gradient(135deg, var(--h-gold), #E8C46A); color: #fff; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-disabled { opacity: 0.38; pointer-events: none; }
+  .btn-icon { padding: 8px; border-radius: var(--r-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); cursor: pointer; font-size: 18px; color: var(--color-text-secondary); }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: var(--r-full); font-size: 12px; border: 0.5px solid var(--color-border-tertiary); }
+
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .section-header h3 { font-size: 16px; font-weight: 500; }
+  .section-header a { font-size: 13px; color: var(--h-teal-dark); cursor: pointer; }
+
+  .wearable-card { border-radius: var(--r-lg); padding: 14px 16px; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); display: flex; align-items: center; gap: 12px; }
+  .wearable-info { flex: 1; }
+  .wearable-name { font-size: 14px; font-weight: 500; }
+  .wearable-status { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .dot-connected { background: var(--h-success); }
+  .dot-disconnected { background: var(--h-gray-300); }
+
+  .limit-card { border-radius: var(--r-lg); padding: 14px 16px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); }
+  .limit-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .limit-title { font-size: 14px; font-weight: 500; }
+  .limit-count { font-size: 13px; color: var(--color-text-secondary); }
+
+  .chat-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .bubble { max-width: 85%; padding: 10px 14px; font-size: 13px; line-height: 1.5; }
+  .bubble-ai { background: var(--color-background-secondary); border-radius: 0 var(--r-lg) var(--r-lg) var(--r-lg); color: var(--color-text-primary); align-self: flex-start; }
+  .bubble-user { background: var(--h-navy); color: #fff; border-radius: var(--r-lg) var(--r-lg) 0 var(--r-lg); align-self: flex-end; }
+
+  .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 10px; }
+  .icon-item { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 12px 8px; border-radius: var(--r-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); }
+  .icon-item i { font-size: 22px; color: var(--h-navy); }
+  .icon-item span { font-size: 10px; color: var(--color-text-secondary); text-align: center; }
+
+  .empty-state { text-align: center; padding: 2rem 1rem; }
+  .empty-state i { font-size: 32px; color: var(--h-gray-300); margin-bottom: 10px; display: block; }
+  .empty-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .empty-sub { font-size: 13px; color: var(--color-text-secondary); }
+
+  .loading-bar { height: 14px; border-radius: var(--r-full); background: var(--color-background-secondary); overflow: hidden; margin-bottom: 8px; }
+  .loading-bar span { display: block; height: 100%; border-radius: var(--r-full); background: var(--color-background-secondary); background: linear-gradient(90deg, var(--color-background-secondary) 25%, var(--color-background-primary) 50%, var(--color-background-secondary) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .token-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .token-table th { text-align: left; padding: 8px 12px; font-weight: 500; font-size: 11px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; background: var(--color-background-secondary); }
+  .token-table td { padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: middle; }
+  .token-table tr:last-child td { border-bottom: none; }
+  .mono { font-family: var(--font-mono); font-size: 12px; color: var(--h-violet-dark); }
+  .color-chip { width: 20px; height: 20px; border-radius: 4px; border: 0.5px solid var(--color-border-tertiary); display: inline-block; vertical-align: middle; margin-right: 6px; }
+
+  .rule-box { background: var(--color-background-secondary); border-radius: var(--r-md); padding: 12px 14px; margin-bottom: 8px; font-size: 13px; }
+  .rule-box strong { font-weight: 500; display: block; margin-bottom: 3px; }
+
+  .nav-preview { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--r-lg); padding: 0; overflow: hidden; }
+  .nav-bar { display: flex; justify-content: space-around; padding: 10px 0 6px; border-top: 0.5px solid var(--color-border-tertiary); }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 12px; border-radius: var(--r-md); }
+  .nav-item i { font-size: 22px; color: var(--h-gray-400); }
+  .nav-item span { font-size: 10px; color: var(--h-gray-400); }
+  .nav-item.nav-active i, .nav-item.nav-active span { color: var(--h-teal-dark); }
+  .nav-screen { padding: 16px; }
+</style>
+
+<div class="ds-wrap" aria-label="Heilsa design system reference">
+<h2 class="sr-only">Heilsa design system — tokens, components, and guidelines</h2>
+
+<div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+  <div style="width:44px; height:44px; border-radius:var(--r-xl); background:linear-gradient(145deg, #3ECFB2, #5CA8E8, #8B7CF8); display:flex; align-items:center; justify-content:center;">
+    <span style="color:#fff; font-size:20px; font-weight:500; font-family:var(--font-sans);">H</span>
+  </div>
+  <div>
+    <div style="font-size:20px; font-weight:500; color:var(--h-navy);">Heilsa</div>
+    <div style="font-size:12px; color:var(--color-text-secondary);">Design system — source of truth</div>
+  </div>
+  <div style="margin-left:auto; background:var(--h-gold-light); color:var(--h-gold); padding:4px 10px; border-radius:var(--r-full); font-size:11px; font-weight:500;">v1.0</div>
+</div>
+
+<div class="tab-row" id="tabs">
+  <div class="tab active" data-page="colors">Colors</div>
+  <div class="tab" data-page="type">Typography</div>
+  <div class="tab" data-page="components">Components</div>
+  <div class="tab" data-page="buttons">Buttons</div>
+  <div class="tab" data-page="icons">Icons</div>
+  <div class="tab" data-page="tokens">Tokens</div>
+  <div class="tab" data-page="rules">Rules</div>
+</div>
+
+<div id="colors" class="page active">
+  <div class="section">
+    <div class="section-label">Brand gradient</div>
+    <div style="height:64px; border-radius:var(--r-lg); background:linear-gradient(135deg, #3ECFB2 0%, #5CA8E8 50%, #8B7CF8 100%); margin-bottom:10px;"></div>
+    <div style="font-size:12px; color:var(--color-text-secondary);">Primary brand gradient — use on premium CTAs, loading indicators, logo backgrounds only.</div>
+  </div>
+  <div class="section">
+    <div class="section-label">Core palette</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background:#3ECFB2;"></div><div class="swatch-info"><div class="swatch-name">Teal</div><div class="swatch-hex">#3ECFB2</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#5CA8E8;"></div><div class="swatch-info"><div class="swatch-name">Blue</div><div class="swatch-hex">#5CA8E8</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#8B7CF8;"></div><div class="swatch-info"><div class="swatch-name">Violet</div><div class="swatch-hex">#8B7CF8</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#1E2A45;"></div><div class="swatch-info"><div class="swatch-name">Navy</div><div class="swatch-hex">#1E2A45</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#D4A853;"></div><div class="swatch-info"><div class="swatch-name">Gold</div><div class="swatch-hex">#D4A853</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#34C78A;"></div><div class="swatch-info"><div class="swatch-name">Success</div><div class="swatch-hex">#34C78A</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#F59E0B;"></div><div class="swatch-info"><div class="swatch-name">Warning</div><div class="swatch-hex">#F59E0B</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#F24E4E;"></div><div class="swatch-info"><div class="swatch-name">Error</div><div class="swatch-hex">#F24E4E</div></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-label">Surface & neutral</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background:#FFFFFF; border-bottom:0.5px solid #eee;"></div><div class="swatch-info"><div class="swatch-name">Surface</div><div class="swatch-hex">#FFFFFF</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#F6F8FB;"></div><div class="swatch-info"><div class="swatch-name">Background</div><div class="swatch-hex">#F6F8FB</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#EDF0F5;"></div><div class="swatch-info"><div class="swatch-name">Subtle</div><div class="swatch-hex">#EDF0F5</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#D8DDE8;"></div><div class="swatch-info"><div class="swatch-name">Border</div><div class="swatch-hex">#D8DDE8</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#9BA5B8;"></div><div class="swatch-info"><div class="swatch-name">Muted text</div><div class="swatch-hex">#9BA5B8</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#5D6880;"></div><div class="swatch-info"><div class="swatch-name">Body text</div><div class="swatch-hex">#5D6880</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="type" class="page">
+  <div class="section">
+    <div class="section-label">Type scale</div>
+    <div class="type-row"><span class="type-label">screen-title / 28px 500</span><span style="font-size:28px; font-weight:500; color:var(--h-navy);">Good morning, Alex</span></div>
+    <div class="type-row"><span class="type-label">section-title / 20px 500</span><span style="font-size:20px; font-weight:500;">Today's health</span></div>
+    <div class="type-row"><span class="type-label">card-title / 16px 500</span><span style="font-size:16px; font-weight:500;">Recovery score</span></div>
+    <div class="type-row"><span class="type-label">metric-number / 32px 500</span><span style="font-size:32px; font-weight:500; color:var(--h-navy);">8,240<span style="font-size:16px; color:var(--color-text-secondary);"> kcal</span></span></div>
+    <div class="type-row"><span class="type-label">body / 14px 400</span><span style="font-size:14px; line-height:1.6; color:var(--color-text-primary);">Your sleep quality improved by 18% this week. Consistent sleep timing is contributing to your recovery.</span></div>
+    <div class="type-row"><span class="type-label">caption / 12px 400</span><span style="font-size:12px; color:var(--color-text-secondary);">Last synced 3 minutes ago</span></div>
+    <div class="type-row"><span class="type-label">label / 11px 500 uppercase</span><span style="font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-text-secondary);">Macros today</span></div>
+    <div class="type-row"><span class="type-label">success text / 13px</span><span style="font-size:13px; color:var(--h-success); font-weight:500;"><i class="ti ti-arrow-up" aria-hidden="true"></i> Goal achieved</span></div>
+    <div class="type-row"><span class="type-label">warning text / 13px</span><span style="font-size:13px; color:var(--h-warning); font-weight:500;"><i class="ti ti-alert-circle" aria-hidden="true"></i> Sodium above target</span></div>
+    <div class="type-row"><span class="type-label">error text / 13px</span><span style="font-size:13px; color:var(--h-error); font-weight:500;"><i class="ti ti-x" aria-hidden="true"></i> Sync failed</span></div>
+  </div>
+</div>
+
+<div id="components" class="page">
+  <div class="section">
+    <div class="section-label">MetricCard</div>
+    <div class="comp-grid">
+      <div class="metric-card">
+        <div class="metric-label">Steps today</div>
+        <div><span class="metric-val">8,240</span><span class="metric-unit">steps</span></div>
+        <div class="metric-trend"><i class="ti ti-trending-up" aria-hidden="true"></i> +12% vs yesterday</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Calories burned</div>
+        <div><span class="metric-val">2,140</span><span class="metric-unit">kcal</span></div>
+        <div class="metric-trend down"><i class="ti ti-trending-down" aria-hidden="true"></i> -5% vs yesterday</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Sleep</div>
+        <div><span class="metric-val">7.4</span><span class="metric-unit">hrs</span></div>
+        <div class="metric-trend"><i class="ti ti-trending-up" aria-hidden="true"></i> Best this week</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Heart rate avg</div>
+        <div><span class="metric-val">62</span><span class="metric-unit">bpm</span></div>
+        <div class="metric-trend"><i class="ti ti-minus" aria-hidden="true"></i> Stable</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">HealthInsightCard</div>
+    <div class="insight-card" style="margin-bottom:10px;">
+      <div class="insight-header">
+        <div class="icon-dot dot-violet"><i class="ti ti-brain" aria-hidden="true"></i></div>
+        <div class="insight-title">AI insight — recovery</div>
+      </div>
+      <div class="insight-body">Your HRV increased by 14ms overnight. This is a strong signal your body adapted well to yesterday's workout. Consider a moderate session today.</div>
+      <span class="insight-tag tag-teal">Recovery</span>
+    </div>
+    <div class="insight-card">
+      <div class="insight-header">
+        <div class="icon-dot dot-gold"><i class="ti ti-crown" aria-hidden="true"></i></div>
+        <div class="insight-title">Premium insight available</div>
+      </div>
+      <div class="insight-body">Unlock advanced macro pattern analysis with a Heilsa Premium subscription.</div>
+      <span class="insight-tag tag-gold">Premium</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">WearableConnectionCard</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div class="wearable-card">
+        <div class="icon-dot dot-teal"><i class="ti ti-brand-apple" aria-hidden="true"></i></div>
+        <div class="wearable-info">
+          <div class="wearable-name">Apple Watch Series 9</div>
+          <div class="wearable-status"><span class="status-dot dot-connected"></span>Connected · synced 2m ago</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">Manage</button>
+      </div>
+      <div class="wearable-card">
+        <div class="icon-dot dot-blue"><i class="ti ti-device-watch" aria-hidden="true"></i></div>
+        <div class="wearable-info">
+          <div class="wearable-name">Oura Ring Gen 3</div>
+          <div class="wearable-status"><span class="status-dot dot-disconnected"></span>Disconnected</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">PremiumLimitCard</div>
+    <div class="limit-card">
+      <div class="limit-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="icon-dot dot-gold" style="width:28px; height:28px; font-size:15px;"><i class="ti ti-sparkles" aria-hidden="true"></i></div>
+          <span class="limit-title">AI scans this month</span>
+        </div>
+        <span class="limit-count">18 / 30</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill fill-gold" style="width:60%;"></div></div>
+      <div style="font-size:12px; color:var(--color-text-secondary); margin-top:6px;">12 scans remaining · resets in 13 days</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">MealScanCard</div>
+    <div class="card-elevated">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <div class="icon-dot dot-teal"><i class="ti ti-camera" aria-hidden="true"></i></div>
+        <div>
+          <div style="font-size:14px; font-weight:500;">Grilled salmon bowl</div>
+          <div style="font-size:12px; color:var(--color-text-secondary);">Scanned today · 12:34 PM</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px; font-weight:500; color:var(--h-navy);">540<span style="font-size:12px; color:var(--color-text-secondary);"> kcal</span></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+        <div class="metric-card" style="text-align:center; padding:8px;">
+          <div class="metric-label" style="font-size:11px;">Protein</div>
+          <div style="font-size:16px; font-weight:500; color:var(--h-teal-dark);">42g</div>
+        </div>
+        <div class="metric-card" style="text-align:center; padding:8px;">
+          <div class="metric-label" style="font-size:11px;">Carbs</div>
+          <div style="font-size:16px; font-weight:500; color:var(--h-blue-dark);">38g</div>
+        </div>
+        <div class="metric-card" style="text-align:center; padding:8px;">
+          <div class="metric-label" style="font-size:11px;">Fat</div>
+          <div style="font-size:16px; font-weight:500; color:var(--h-violet-dark);">22g</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">ChatBubble</div>
+    <div class="card" style="padding:16px;">
+      <div class="chat-wrap">
+        <div class="bubble bubble-user">How's my recovery looking today?</div>
+        <div class="bubble bubble-ai">Your recovery score is 84/100 — excellent. HRV is up 14ms and resting heart rate dropped 3 bpm. You're well-primed for a moderate training session.</div>
+        <div class="bubble bubble-user">What should I eat before training?</div>
+        <div class="bubble bubble-ai" style="display:flex; gap:8px; align-items:flex-start;"><span style="color:var(--h-violet); font-size:16px;"><i class="ti ti-sparkles" aria-hidden="true"></i></span><span>Based on your macros so far, a balanced meal with ~40g carbs and ~25g protein 60–90 min before works well for you.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">EmptyState / LoadingState</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="card">
+        <div class="empty-state">
+          <i class="ti ti-photo-scan" aria-hidden="true"></i>
+          <div class="empty-title">No meals logged yet</div>
+          <div class="empty-sub">Tap the scan button to add your first meal.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="loading-bar"><span></span></div>
+        <div class="loading-bar" style="width:70%;"><span></span></div>
+        <div class="loading-bar" style="width:50%;"><span></span></div>
+        <div style="font-size:12px; color:var(--color-text-secondary); margin-top:10px;">Syncing health data…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Bottom navigation</div>
+    <div class="nav-preview">
+      <div class="nav-screen">
+        <div class="section-header"><h3>Dashboard</h3><a>See all</a></div>
+        <div style="height:60px; background:var(--color-background-secondary); border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; color:var(--color-text-secondary); font-size:13px;">Screen content area</div>
+      </div>
+      <div class="nav-bar">
+        <div class="nav-item nav-active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Home</span></div>
+        <div class="nav-item"><i class="ti ti-camera" aria-hidden="true"></i><span>Scan</span></div>
+        <div class="nav-item"><i class="ti ti-heart-rate-monitor" aria-hidden="true"></i><span>Health</span></div>
+        <div class="nav-item"><i class="ti ti-message-circle" aria-hidden="true"></i><span>AI chat</span></div>
+        <div class="nav-item"><i class="ti ti-user" aria-hidden="true"></i><span>Profile</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="buttons" class="page">
+  <div class="section">
+    <div class="section-label">Button system</div>
+    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:1.5rem;">
+      <button class="btn btn-primary"><i class="ti ti-check" aria-hidden="true"></i> Primary action</button>
+      <button class="btn btn-secondary">Secondary</button>
+      <button class="btn btn-ghost"><i class="ti ti-refresh" aria-hidden="true"></i> Ghost</button>
+      <button class="btn btn-teal"><i class="ti ti-sparkles" aria-hidden="true"></i> AI action</button>
+      <button class="btn btn-premium"><i class="ti ti-crown" aria-hidden="true"></i> Upgrade to Premium</button>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:1.5rem;">
+      <button class="btn btn-primary btn-sm">Small primary</button>
+      <button class="btn btn-ghost btn-sm">Small ghost</button>
+      <button class="btn btn-primary btn-disabled">Disabled</button>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn-icon" aria-label="Add"><i class="ti ti-plus" aria-hidden="true"></i></button>
+      <button class="btn-icon" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i></button>
+      <button class="btn-icon" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i></button>
+      <button class="btn-icon" aria-label="Close"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-label">Pill / badge</div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <span class="pill" style="background:var(--h-teal-light); color:var(--h-teal-dark); border:none;">Recovery</span>
+      <span class="pill" style="background:var(--h-blue-light); color:var(--h-blue-dark); border:none;">Nutrition</span>
+      <span class="pill" style="background:var(--h-gold-light); color:var(--h-gold); border:none;"><i class="ti ti-crown" aria-hidden="true" style="font-size:12px;"></i> Premium</span>
+      <span class="pill" style="background:#D4F6E8; color:var(--h-success); border:none;">On track</span>
+      <span class="pill" style="background:#FEF3CD; color:var(--h-warning); border:none;">Above target</span>
+      <span class="pill" style="background:#FDEAEA; color:var(--h-error); border:none;">Needs attention</span>
+    </div>
+  </div>
+</div>
+
+<div id="icons" class="page">
+  <div class="section">
+    <div class="section-label">Approved icon set — Tabler outline only</div>
+    <div class="icon-grid">
+      <div class="icon-item"><i class="ti ti-heart-rate-monitor" aria-hidden="true"></i><span>Health</span></div>
+      <div class="icon-item"><i class="ti ti-camera" aria-hidden="true"></i><span>Scan</span></div>
+      <div class="icon-item"><i class="ti ti-brain" aria-hidden="true"></i><span>AI insight</span></div>
+      <div class="icon-item"><i class="ti ti-salad" aria-hidden="true"></i><span>Nutrition</span></div>
+      <div class="icon-item"><i class="ti ti-moon" aria-hidden="true"></i><span>Sleep</span></div>
+      <div class="icon-item"><i class="ti ti-run" aria-hidden="true"></i><span>Activity</span></div>
+      <div class="icon-item"><i class="ti ti-device-watch" aria-hidden="true"></i><span>Wearable</span></div>
+      <div class="icon-item"><i class="ti ti-droplet" aria-hidden="true"></i><span>Hydration</span></div>
+      <div class="icon-item"><i class="ti ti-flame" aria-hidden="true"></i><span>Calories</span></div>
+      <div class="icon-item"><i class="ti ti-chart-line" aria-hidden="true"></i><span>Trends</span></div>
+      <div class="icon-item"><i class="ti ti-message-circle" aria-hidden="true"></i><span>Chat</span></div>
+      <div class="icon-item"><i class="ti ti-sparkles" aria-hidden="true"></i><span>Premium AI</span></div>
+      <div class="icon-item"><i class="ti ti-crown" aria-hidden="true"></i><span>Premium</span></div>
+      <div class="icon-item"><i class="ti ti-bell" aria-hidden="true"></i><span>Alerts</span></div>
+      <div class="icon-item"><i class="ti ti-settings" aria-hidden="true"></i><span>Settings</span></div>
+      <div class="icon-item"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></div>
+    </div>
+    <div style="margin-top:1rem; padding:10px 14px; background:var(--color-background-secondary); border-radius:var(--r-md); font-size:13px; color:var(--color-text-secondary);">
+      <strong style="color:var(--color-text-primary); font-weight:500;">Rules:</strong> Tabler outline only · 22px nav, 20px card, 18px inline, 16px label · no filled variants · no emoji in production UI · match the health-tech premium feel
+    </div>
+  </div>
+</div>
+
+<div id="tokens" class="page">
+  <div class="section">
+    <div class="section-label">Color tokens</div>
+    <table class="token-table">
+      <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">color.teal</td><td><span class="color-chip" style="background:#3ECFB2;"></span>#3ECFB2</td><td style="font-size:12px; color:var(--color-text-secondary);">Primary brand, AI actions, icons</td></tr>
+        <tr><td class="mono">color.blue</td><td><span class="color-chip" style="background:#5CA8E8;"></span>#5CA8E8</td><td style="font-size:12px; color:var(--color-text-secondary);">Secondary brand, links, charts</td></tr>
+        <tr><td class="mono">color.violet</td><td><span class="color-chip" style="background:#8B7CF8;"></span>#8B7CF8</td><td style="font-size:12px; color:var(--color-text-secondary);">AI insights, premium indicators</td></tr>
+        <tr><td class="mono">color.navy</td><td><span class="color-chip" style="background:#1E2A45;"></span>#1E2A45</td><td style="font-size:12px; color:var(--color-text-secondary);">Primary CTA, headings, wordmark</td></tr>
+        <tr><td class="mono">color.gold</td><td><span class="color-chip" style="background:#D4A853;"></span>#D4A853</td><td style="font-size:12px; color:var(--color-text-secondary);">Premium features only</td></tr>
+        <tr><td class="mono">color.success</td><td><span class="color-chip" style="background:#34C78A;"></span>#34C78A</td><td style="font-size:12px; color:var(--color-text-secondary);">Goals met, positive trends</td></tr>
+        <tr><td class="mono">color.warning</td><td><span class="color-chip" style="background:#F59E0B;"></span>#F59E0B</td><td style="font-size:12px; color:var(--color-text-secondary);">Approaching limits, cautions</td></tr>
+        <tr><td class="mono">color.error</td><td><span class="color-chip" style="background:#F24E4E;"></span>#F24E4E</td><td style="font-size:12px; color:var(--color-text-secondary);">Sync failures, exceeded limits</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <div class="section-label">Spacing, radius & shadow tokens</div>
+    <table class="token-table">
+      <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">spacing.screen</td><td>16px</td><td style="font-size:12px; color:var(--color-text-secondary);">Screen horizontal padding</td></tr>
+        <tr><td class="mono">spacing.section</td><td>24px</td><td style="font-size:12px; color:var(--color-text-secondary);">Between major sections</td></tr>
+        <tr><td class="mono">spacing.card</td><td>12px</td><td style="font-size:12px; color:var(--color-text-secondary);">Gap between cards in a grid</td></tr>
+        <tr><td class="mono">spacing.card-inner</td><td>16px</td><td style="font-size:12px; color:var(--color-text-secondary);">Internal card padding</td></tr>
+        <tr><td class="mono">radius.sm</td><td>8px</td><td style="font-size:12px; color:var(--color-text-secondary);">Tags, badges, small elements</td></tr>
+        <tr><td class="mono">radius.md</td><td>12px</td><td style="font-size:12px; color:var(--color-text-secondary);">Metric cards, inputs, buttons</td></tr>
+        <tr><td class="mono">radius.lg</td><td>16px</td><td style="font-size:12px; color:var(--color-text-secondary);">Main cards, containers</td></tr>
+        <tr><td class="mono">radius.xl</td><td>24px</td><td style="font-size:12px; color:var(--color-text-secondary);">Modals, bottom sheets</td></tr>
+        <tr><td class="mono">shadow.card</td><td>0 1px 3px α6, 0 4px 12px α4</td><td style="font-size:12px; color:var(--color-text-secondary);">Elevated cards</td></tr>
+        <tr><td class="mono">font.screen-title</td><td>28px / 500</td><td style="font-size:12px; color:var(--color-text-secondary);">Page-level headings</td></tr>
+        <tr><td class="mono">font.card-title</td><td>16px / 500</td><td style="font-size:12px; color:var(--color-text-secondary);">Card titles</td></tr>
+        <tr><td class="mono">font.metric</td><td>32px / 500</td><td style="font-size:12px; color:var(--color-text-secondary);">Hero numbers</td></tr>
+        <tr><td class="mono">font.body</td><td>14px / 400 / lh 1.6</td><td style="font-size:12px; color:var(--color-text-secondary);">All body copy</td></tr>
+        <tr><td class="mono">font.caption</td><td>12px / 400</td><td style="font-size:12px; color:var(--color-text-secondary);">Timestamps, sublabels</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="rules" class="page">
+  <div class="section">
+    <div class="section-label">Adding a new card — checklist</div>
+    <div class="rule-box"><strong>1. Check first — does an existing component cover it?</strong>MetricCard, InsightCard, WearableCard, LimitCard, or MealScanCard should be reused before creating new ones.</div>
+    <div class="rule-box"><strong>2. Token only — no hardcoded colors or spacing</strong>All values must come from the token file. No random hex values, no px magic numbers.</div>
+    <div class="rule-box"><strong>3. States are required</strong>Every data-dependent card must have: loading (shimmer), empty state (icon + message), and error state (error color + retry).</div>
+    <div class="rule-box"><strong>4. Icon rules</strong>Tabler outline only. 20px inside cards, 22px in navigation. One icon family throughout.</div>
+    <div class="rule-box"><strong>5. Mobile first</strong>Test at 375px. No overflow. Safe area insets on bottom nav. No fixed elements except bottom nav.</div>
+    <div class="rule-box"><strong>6. Premium gating</strong>Gold accent only. Use the PremiumLimitCard pattern. Never use gold for non-premium elements.</div>
+    <div class="rule-box"><strong>7. No clutter rule</strong>Max 2 actions per card. No more than 3 metrics in a single card row. Section headers always have a title and optional "See all" — nothing else.</div>
+    <div class="rule-box"><strong>8. Brand gradient rule</strong>The teal→blue→violet gradient is reserved for the logo background, loading bars, and premium upgrade CTAs only. Do not use it decoratively.</div>
+  </div>
+  <div class="section">
+    <div class="section-label">What NOT to do</div>
+    <div style="display:grid; gap:8px;">
+      <div style="padding:10px 14px; border-radius:var(--r-md); border:0.5px solid #FDEAEA; background:#FDEAEA; font-size:13px; color:var(--h-error);"><i class="ti ti-x" aria-hidden="true"></i> Mix Tabler + Heroicons + SF Symbols in the same screen</div>
+      <div style="padding:10px 14px; border-radius:var(--r-md); border:0.5px solid #FDEAEA; background:#FDEAEA; font-size:13px; color:var(--h-error);"><i class="ti ti-x" aria-hidden="true"></i> Hardcode <code>#3ECFB2</code> directly in a component — use the token</div>
+      <div style="padding:10px 14px; border-radius:var(--r-md); border:0.5px solid #FDEAEA; background:#FDEAEA; font-size:13px; color:var(--h-error);"><i class="ti ti-x" aria-hidden="true"></i> Use the gold / premium color for non-premium elements</div>
+      <div style="padding:10px 14px; border-radius:var(--r-md); border:0.5px solid #FDEAEA; background:#FDEAEA; font-size:13px; color:var(--h-error);"><i class="ti ti-x" aria-hidden="true"></i> Ship a card without loading / empty states</div>
+      <div style="padding:10px 14px; border-radius:var(--r-md); border:0.5px solid #FDEAEA; background:#FDEAEA; font-size:13px; color:var(--h-error);"><i class="ti ti-x" aria-hidden="true"></i> Add a one-off card style that can't be reused</div>
+      <div style="padding:10px 14px; border-radius:var(--r-md); border:0.5px solid #FDEAEA; background:#FDEAEA; font-size:13px; color:var(--h-error);"><i class="ti ti-x" aria-hidden="true"></i> Use the brand gradient as a card background</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.page).classList.add('active');
+    });
+  });
+</script>
